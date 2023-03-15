@@ -21,9 +21,9 @@ public class CustomerEntity implements Serializable {
     private String name;
     @Column(name = "SURNAME", nullable = false)
     private String sirName;
-    @Column(name = "ACCOUNT_ID", insertable = false, updatable = false)
+    @Column(name = "ACCOUNT_FK", insertable = false, updatable = false)
     private Long accountId;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "ACCOUNT_ID")
+    @JoinColumn(name = "ACCOUNT_FK", nullable = false)
     private AccountEntity accountEntity;
 }

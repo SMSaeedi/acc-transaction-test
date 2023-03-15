@@ -10,6 +10,5 @@ public class TransactionDto {
     private Double lastBalance;
     private Double initialCredit;
     private Long customerId;
-    private CustomerDto customerDto;
     private TransactionType transactionType;
 }

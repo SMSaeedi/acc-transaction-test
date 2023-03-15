@@ -30,6 +30,6 @@ public class TransactionEntity implements Serializable {
     @Column(name = "CUSTOMER_ID", insertable = false, updatable = false)
     private Long customerId;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CUSTOMER_ID")
+    @JoinColumn(name = "CUSTOMER_ID", nullable = false)
     private CustomerEntity customerEntity;
 }

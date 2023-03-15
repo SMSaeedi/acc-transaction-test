@@ -34,7 +34,7 @@ public class DebitServiceImpl implements DebitService {
 
         var accountEntity = accountService.findAccountByNr(accNr);
 
-        Double lastBalance = accountService.getLastBalance(customerId, accNr, accountEntity.getAccountType().ordinal());
+        Double lastBalance = accountService.getLastBalance(customerId, accNr, accountEntity.getAccountType());
         accountEntity.setBalance(lastBalance - amount);
         accountRepository.save(accountEntity);
 

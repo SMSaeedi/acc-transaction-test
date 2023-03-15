@@ -3,6 +3,7 @@ package at.co.account.service.impl;
 import at.co.account.dto.AccountDto;
 import at.co.account.entity.AccountEntity;
 import at.co.account.entity.TransactionEntity;
+import at.co.account.enums.AccountType;
 import at.co.account.enums.TransactionType;
 import at.co.account.exception.Errors;
 import at.co.account.exception.NotAllowedException;
@@ -35,27 +36,36 @@ public class AccountServiceImpl implements AccountService {
         if (accountDto.getBalance().equals(0D))
             throw new NotAllowedException(Errors.NOT_ALLOWED);
 
-        var accNumber = Long.valueOf(String.format("%08d", random.nextInt(100000000)));
-        var accountEntity = AccountEntity.builder()
-                .accNr(accNumber)
-                .balance(accountDto.getBalance())
-                .accountType(accountDto.getAccountType())
-                .build();
+        var accountEntity = findAccountByType(accountDto.getAccountType());
+        if (accountEntity.equals(accountDto.getAccountType())) {
+            var balance = accountEntity.getBalance();
+            accountDto.setBalance(balance + accountDto.getBalance());
+        } else {
+            var accNumber = Long.valueOf(String.format("%08d", random.nextInt(100000000)));
+            accountEntity = AccountEntity.builder()
+                    .accNr(accNumber)
+                    .balance(accountDto.getBalance())
+                    .accountType(accountDto.getAccountType())
+                    .build();
+        }
         var account = accountRepository.saveAndFlush(accountEntity);
 
         customerEntity.setAccountEntity(accountEntity);
+        customerEntity.setAccountId(accountEntity.getId());
         customerRepository.saveAndFlush(customerEntity);
 
         //in creating account first transaction must be applied here.
         var transactionEntity = TransactionEntity.builder()
                 .initialCredit(accountDto.getBalance())
                 .transactionType(TransactionType.CREDIT)
+                .isTransactionSucceeded(true)
                 .lastBalance(accountDto.getBalance())
                 .customerId(customerEntity.getId())
                 .customerEntity(customerEntity)
                 .build();
 
         transactionEntity.setCustomerEntity(customerEntity);
+        transactionEntity.setCustomerId(customerEntity.getId());
         transactionRepository.saveAndFlush(transactionEntity);
 
         return account;
@@ -70,9 +80,14 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public Double getLastBalance(Long customerId, Long accNr, int accountType) {
-        var accountEntity = accountRepository.findByAccountType(accountType)
+    public AccountEntity findAccountByType(AccountType accType) {
+        return accountRepository.findByAccountType(accType)
                 .orElseThrow(() -> new NotFoundException(Errors.NO_ACCOUNT_TYPE_FOUND));
+    }
+
+    @Override
+    public Double getLastBalance(Long customerId, Long accNr, AccountType accountType) {
+        var accountEntity = findAccountByType(accountType);
 
         var allCustomerAccNrs = customerService.findAllAccNrs(customerId);
 

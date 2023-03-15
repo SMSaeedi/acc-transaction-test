@@ -23,5 +23,6 @@ public class AccountEntity implements Serializable {
     @Column(name = "BALANCE", nullable = false)
     private Double balance;
     @Column(name = "ACCOUNT_TYPE", nullable = false)
+    @Enumerated(EnumType.STRING)
     private AccountType accountType;
 }
