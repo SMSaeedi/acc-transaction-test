@@ -26,7 +26,7 @@ public class DebitServiceImpl implements DebitService {
     private final AccountRepository accountRepository;
 
     @Override
-    public TransactionEntity debit(CustomerEntity customerEntity, AccountEntity accountEntity) {
+    public TransactionEntity debit(CustomerEntity customerEntity, AccountEntity accountEntity,Double oldBalance) {
         if (!accountRepository.findByAccNr(accountEntity.getAccNr()).isPresent())
             throw new NotFoundException(Errors.NO_SUCH_ACCOUNT_FOUND);
 
@@ -39,8 +39,8 @@ public class DebitServiceImpl implements DebitService {
         var debitTransaction = TransactionEntity.builder()
                 .transactionType(TransactionType.CREDIT)
                 .isTransactionSucceeded(true)
-                .oldBalance(accountEntity.getBalance())
-                .newBalance(accountEntity.getInitialCredit() + accountEntity.getBalance())
+                .oldBalance(oldBalance)
+                .newBalance(accountEntity.getBalance())
                 .customerId(customerEntity.getId())
                 .customerEntity(customerEntity)
                 .build();

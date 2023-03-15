@@ -7,5 +7,5 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 public interface DebitService {
-    TransactionEntity debit(CustomerEntity customerEntity, AccountEntity accountEntity);
+    TransactionEntity debit(CustomerEntity customerEntity, AccountEntity accountEntity, Double oldBalance);
 }

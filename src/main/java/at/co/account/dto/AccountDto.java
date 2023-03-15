@@ -7,6 +7,6 @@ import lombok.Data;
 @Data
 @Builder
 public class AccountDto {
-    private Double initialCredit;
+    private Double amount;
     private AccountType accountType;
 }

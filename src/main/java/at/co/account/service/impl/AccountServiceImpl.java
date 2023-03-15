@@ -33,10 +33,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountEntity createAccount(Long customerId, AccountDto accountDto) {
         var accountEntity = AccountEntity.builder().build();
+        var oldBalance = 0D;
 
         var customerEntity = customerService.findCustomerById(customerId);
 
-        if (accountDto.getInitialCredit().equals(0D))
+        if (accountDto.getAmount().equals(0D))
             throw new NotAllowedException(Errors.NOT_ALLOWED);
 
         var findByType = hasAccount(accountDto.getAccountType());
@@ -44,18 +45,19 @@ public class AccountServiceImpl implements AccountService {
             var accNumber = Long.valueOf(String.format("%08d", random.nextInt(100000000)));
             accountEntity = AccountEntity.builder()
                     .accNr(accNumber)
-                    .initialCredit(accountDto.getInitialCredit())
-                    .balance(accountDto.getInitialCredit())
+                    .amount(accountDto.getAmount())
+                    .balance(accountDto.getAmount())
                     .accountType(accountDto.getAccountType())
                     .build();
         } else {
             accountEntity = findByType.get();
             if (accountEntity.getAccountType().equals(accountDto.getAccountType())) {
-                var balance = accountEntity.getBalance();
-                accountDto.setInitialCredit(balance + accountDto.getInitialCredit());
+                oldBalance = accountEntity.getBalance();
+                accountEntity.setBalance(accountEntity.getBalance() + accountDto.getAmount());
+                accountEntity.setAmount(accountDto.getAmount());
             }
         }
-        creditService.credit(customerEntity, accountEntity);
+        creditService.credit(customerEntity, accountEntity, oldBalance);
 
         return accountEntity;
     }
@@ -63,10 +65,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public AccountEntity updateAccount(Long customerId, AccountUpdateDto accountUpdateDto) {
         var accountEntity = AccountEntity.builder().build();
+        var oldBalance = 0D;
 
         var customerEntity = customerService.findCustomerById(customerId);
 
-        if (accountUpdateDto.getInitialCredit().equals(0D))
+        if (accountUpdateDto.getAmount().equals(0D))
             throw new NotAllowedException(Errors.NOT_ALLOWED);
 
         var findByType = hasAccount(accountUpdateDto.getAccountType());
@@ -74,22 +77,23 @@ public class AccountServiceImpl implements AccountService {
             var accNumber = Long.valueOf(String.format("%08d", random.nextInt(100000000)));
             accountEntity = AccountEntity.builder()
                     .accNr(accNumber)
-                    .initialCredit(accountUpdateDto.getInitialCredit())
-                    .balance(accountUpdateDto.getInitialCredit())
+                    .amount(accountUpdateDto.getAmount())
+                    .balance(accountUpdateDto.getAmount())
                     .accountType(accountUpdateDto.getAccountType())
                     .build();
         } else {
             accountEntity = findByType.get();
             if (accountEntity.getAccountType().equals(accountUpdateDto.getAccountType())) {
-                var balance = accountEntity.getBalance();
-                accountUpdateDto.setInitialCredit(balance + accountUpdateDto.getInitialCredit());
+                oldBalance = accountEntity.getBalance();
+                accountEntity.setBalance(accountEntity.getBalance() + accountUpdateDto.getAmount());
+                accountEntity.setAmount(accountUpdateDto.getAmount());
             }
         }
 
         if (accountUpdateDto.getTransactionType().equals(TransactionType.CREDIT))
-            creditService.credit(customerEntity, accountEntity);
+            creditService.credit(customerEntity, accountEntity, oldBalance);
         else if (accountUpdateDto.getTransactionType().equals(TransactionType.DEBIT))
-            debitService.debit(customerEntity, accountEntity);
+            debitService.debit(customerEntity, accountEntity, oldBalance);
 
         return accountEntity;
     }

@@ -26,11 +26,12 @@ public class CreditServiceImpl implements CreditService {
     private final AccountRepository accountRepository;
 
     @Override
-    public TransactionEntity credit(CustomerEntity customerEntity, AccountEntity accountEntity) {
-        if (!accountRepository.findByAccNr(accountEntity.getAccNr()).isPresent())
-            throw new NotFoundException(Errors.NO_SUCH_ACCOUNT_FOUND);
-
+    public TransactionEntity credit(CustomerEntity customerEntity, AccountEntity accountEntity,Double oldBalance) {
         accountRepository.save(accountEntity);
+
+        var byAccountNr = accountRepository.findByAccNr(accountEntity.getAccNr());
+        if (!byAccountNr.isPresent())
+            throw new NotFoundException(Errors.NO_SUCH_ACCOUNT_FOUND);
 
         customerEntity.setAccountId(accountEntity.getId());
         customerEntity.setAccountEntity(accountEntity);
@@ -39,8 +40,8 @@ public class CreditServiceImpl implements CreditService {
         var creditTransaction = TransactionEntity.builder()
                 .transactionType(TransactionType.CREDIT)
                 .isTransactionSucceeded(true)
-                .oldBalance(accountEntity.getBalance())
-                .newBalance(accountEntity.getInitialCredit() + accountEntity.getBalance())
+                .oldBalance(oldBalance)
+                .newBalance(accountEntity.getBalance())
                 .customerId(customerEntity.getId())
                 .customerEntity(customerEntity)
                 .build();

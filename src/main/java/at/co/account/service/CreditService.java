@@ -7,5 +7,5 @@ import org.springframework.validation.annotation.Validated;
 
 @Validated
 public interface CreditService {
-    TransactionEntity credit(CustomerEntity customerEntity, AccountEntity accountEntity);
+    TransactionEntity credit(CustomerEntity customerEntity, AccountEntity accountEntity, Double oldBalance);
 }
