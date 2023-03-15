@@ -19,21 +19,21 @@ public class TransactionController {
     private final CreditService creditService;
     private final DebitService debitService;
 
-    @PostMapping("/credit/{customerId}/{accNr}/{amount}")
+   /* @PostMapping("/credit/{customerId}/{accNr}/{amount}")
     @Operation(summary = "Credit account")
     @ResponseStatus(HttpStatus.OK)
     public TransactionEntity credit(@PathVariable Long customerId, @PathVariable Long accNr, @PathVariable Double amount) {
         var credit = creditService.credit(customerId, accNr, amount);
 
         return credit;
-    }
+    }*/
 
-    @PostMapping("/debit/{customerId}/{accNr}/{amount}")
+   /* @PostMapping("/debit/{customerId}/{accNr}/{amount}")
     @Operation(summary = "Debit account")
     @ResponseStatus(HttpStatus.OK)
     public TransactionEntity debit(@PathVariable Long customerId, @PathVariable Long accNr, @PathVariable Double amount) {
         var debit = debitService.debit(customerId, accNr, amount);
 
         return debit;
-    }
+    }*/
 }

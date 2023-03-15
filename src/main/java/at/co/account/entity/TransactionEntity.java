@@ -18,18 +18,18 @@ public class TransactionEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(name = "ID", updatable = false, nullable = false, unique = true)
     private Long id;
-    @Column(name = "INITIAL_CREDIT", nullable = false)
-    private Double initialCredit;
-    @Column(name = "LAST_BALANCE", nullable = false)
-    private Double lastBalance;
+    @Column(name = "OLD_BALANCE", nullable = false)
+    private Double oldBalance;
+    @Column(name = "NEW_BALANCE", nullable = false)
+    private Double newBalance;
     @Column(name = "IS_TRANSACTION_SUCCEEDED")
     private boolean isTransactionSucceeded;
     @Column(name = "TRANSACTION_TYPE", nullable = false)
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
-    @Column(name = "CUSTOMER_ID", insertable = false, updatable = false)
+    @Column(name = "CUSTOMER_FK", insertable = false, updatable = false)
     private Long customerId;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CUSTOMER_ID", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "CUSTOMER_FK", nullable = false)
     private CustomerEntity customerEntity;
 }
