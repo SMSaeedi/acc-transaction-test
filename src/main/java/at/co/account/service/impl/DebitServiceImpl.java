@@ -27,25 +27,26 @@ public class DebitServiceImpl implements DebitService {
 
     @Override
     public TransactionEntity debit(CustomerEntity customerEntity, AccountEntity accountEntity,Double oldBalance) {
-        if (!accountRepository.findByAccNr(accountEntity.getAccNr()).isPresent())
-            throw new NotFoundException(Errors.NO_SUCH_ACCOUNT_FOUND);
-
         accountRepository.save(accountEntity);
+
+        var byAccountNr = accountRepository.findByAccNr(accountEntity.getAccNr());
+        if (!byAccountNr.isPresent())
+            throw new NotFoundException(Errors.NO_SUCH_ACCOUNT_FOUND);
 
         customerEntity.setAccountId(accountEntity.getId());
         customerEntity.setAccountEntity(accountEntity);
         customerRepository.save(customerEntity);
 
-        var debitTransaction = TransactionEntity.builder()
-                .transactionType(TransactionType.CREDIT)
+        var creditTransaction = TransactionEntity.builder()
+                .transactionType(TransactionType.DEBIT)
                 .isTransactionSucceeded(true)
                 .oldBalance(oldBalance)
                 .newBalance(accountEntity.getBalance())
                 .customerId(customerEntity.getId())
                 .customerEntity(customerEntity)
                 .build();
-        transactionRepository.saveAndFlush(debitTransaction);
+        transactionRepository.saveAndFlush(creditTransaction);
 
-        return debitTransaction;
+        return creditTransaction;
     }
 }

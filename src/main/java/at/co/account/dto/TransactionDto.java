@@ -8,7 +8,7 @@ import lombok.Data;
 @Builder
 public class TransactionDto {
     private Double lastBalance;
-    private Double initialCredit;
+    private Double amount;
     private Long customerId;
     private TransactionType transactionType;
 }

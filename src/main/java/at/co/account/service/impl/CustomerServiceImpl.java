@@ -8,6 +8,7 @@ import at.co.account.entity.CustomerEntity;
 import at.co.account.exception.Errors;
 import at.co.account.exception.NotFoundException;
 import at.co.account.repository.CustomerRepository;
+import at.co.account.service.AccountService;
 import at.co.account.service.CustomerService;
 import at.co.account.service.TransactionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,12 +28,14 @@ import java.util.List;
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final TransactionService transactionService;
+    private final AccountService accountService;
     private final ObjectMapper objectMapper;
 
     @Override
     public GetCustomerTransaction getCustomerTransaction(Long customerId) {
         var customerEntity = findCustomerById(customerId);
         var customerDto = objectMapper.convertValue(customerEntity, CustomerDto.class);
+        var accountEntity = accountService.findAccountByNr(customerEntity.getAccountId());
 
         var transactionEntities = transactionService.allCustomersTransactions(customerEntity.getId());
         var transactionDtos = List.of(objectMapper.convertValue(transactionEntities, TransactionDto[].class));

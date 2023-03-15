@@ -85,15 +85,17 @@ public class AccountServiceImpl implements AccountService {
             accountEntity = findByType.get();
             if (accountEntity.getAccountType().equals(accountUpdateDto.getAccountType())) {
                 oldBalance = accountEntity.getBalance();
-                accountEntity.setBalance(accountEntity.getBalance() + accountUpdateDto.getAmount());
                 accountEntity.setAmount(accountUpdateDto.getAmount());
             }
         }
 
-        if (accountUpdateDto.getTransactionType().equals(TransactionType.CREDIT))
+        if (accountUpdateDto.getTransactionType().equals(TransactionType.CREDIT)) {
+            accountEntity.setBalance(accountEntity.getBalance() + accountUpdateDto.getAmount());
             creditService.credit(customerEntity, accountEntity, oldBalance);
-        else if (accountUpdateDto.getTransactionType().equals(TransactionType.DEBIT))
+        } else if (accountUpdateDto.getTransactionType().equals(TransactionType.DEBIT)) {
+            accountEntity.setBalance(accountEntity.getBalance() - accountUpdateDto.getAmount());
             debitService.debit(customerEntity, accountEntity, oldBalance);
+        }
 
         return accountEntity;
     }
@@ -118,6 +120,5 @@ public class AccountServiceImpl implements AccountService {
         return accountEntity.map(entity -> allCustomerAccNrs.stream()
                 .filter(account -> account.getAccountType().equals(entity.getAccountType()))
                 .map(AccountEntity::getBalance).findFirst().orElse(0D)).orElse(0D);
-
     }
 }
