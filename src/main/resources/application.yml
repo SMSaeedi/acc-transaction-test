@@ -1,0 +1,58 @@
+server:
+  port: 9856
+  servlet:
+    context-path: /cap-gem
+
+spring:
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+#  main:
+#    allow-circular-references: true
+  jmx:
+    enabled: true # Automatic registration of MBeans. An MBean is a managed Java object, similar to a JavaBeans component, that follows the design patterns set forth in the JMX specification
+  h2:
+    console:
+      enabled: true
+      path: /h2
+      settings:
+        trace: false
+        web-allow-others: false
+  datasource:
+    url: jdbc:h2:mem:cap-gem;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: cap
+    password: capcap6568
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        use_sql_comments: true
+        format_sql: true
+    defer-datasource-initialization: true
+
+logging:
+  level:
+    root: INFO
+    hibernate: INFO
+    org.hibernate: INFO
+    org:
+      hibernate:
+        SQL: INFO
+        type.descriptor.sql.BasicBinder: INFO
+      springframework:
+        boot.autoconfigure: INFO
+        web: INFO
+        web.reactive.function.client.ExchangeFunctions: INFO
+      apache.http: INFO
+    net.guides: INFO
+    reactor.netty.http.client.HttpClient: INFO
+    io.swagger.models.parameters.AbstractSerializableParameter: INFO
+    tomcat: INFO
+  config: classpath:logback.xml
+
+springdoc:
+  swagger-ui:
+    path: /api.html
