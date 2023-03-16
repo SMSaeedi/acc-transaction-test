@@ -19,7 +19,7 @@ public class AccountController {
 
     @PostMapping("/{customerId}")
     @Operation(summary = "Create account for a specific customer")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     public AccountEntity createAccount(@PathVariable Long customerId, @RequestBody AccountDto accountDto) {
         var createAcc = accountService.createAccount(customerId, accountDto);
 

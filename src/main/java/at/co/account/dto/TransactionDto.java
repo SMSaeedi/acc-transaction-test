@@ -9,6 +9,5 @@ import lombok.Data;
 public class TransactionDto {
     private Double lastBalance;
     private Double amount;
-    private Long customerId;
     private TransactionType transactionType;
 }

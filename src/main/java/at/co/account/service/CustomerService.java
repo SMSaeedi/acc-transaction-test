@@ -10,6 +10,7 @@ import java.util.List;
 @Validated
 public interface CustomerService {
     GetCustomerTransaction getCustomerTransaction(Long customerId);
+
     CustomerEntity findCustomerById(Long customerId);
 
     CustomerEntity findOneAccNr(Long customerId, Long accNr);
