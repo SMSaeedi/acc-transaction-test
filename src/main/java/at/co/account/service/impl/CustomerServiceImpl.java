@@ -32,7 +32,6 @@ public class CustomerServiceImpl implements CustomerService {
     public GetCustomerTransaction getCustomerTransaction(Long customerId) {
         var customerEntity = findCustomerById(customerId);
         var customerDto = objectMapper.convertValue(customerEntity, CustomerDto.class);
-        var accountEntity = accountRepository.findByAccNr(customerEntity.getAccountId());
 
         var transactionEntities = transactionService.allCustomersTransactions(customerEntity.getId());
         var transactionDtos = transactionMapper.toListDto(transactionEntities);
@@ -40,7 +39,7 @@ public class CustomerServiceImpl implements CustomerService {
         return GetCustomerTransaction.builder()
                 .customerName(customerDto.getName())
                 .customerSirName(customerEntity.getSirName())
-                .balance(customerEntity.getAccountEntity().getBalance())
+                .totalBalance(customerEntity.getAccountEntity().getBalance())
                 .transaction(transactionDtos)
                 .build();
     }

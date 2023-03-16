@@ -10,6 +10,6 @@ import java.util.List;
 public class GetCustomerTransaction {
     private String customerName;
     private String customerSirName;
-    private Double balance;
+    private Double totalBalance;
     private List<TransactionDto> transaction;
 }
