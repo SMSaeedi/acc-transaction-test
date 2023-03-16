@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 public class TransactionDto {
-    private Double lastBalance;
-    private Double amount;
+    private Double oldBalance;
+    private Double newBalance;
     private TransactionType transactionType;
 }

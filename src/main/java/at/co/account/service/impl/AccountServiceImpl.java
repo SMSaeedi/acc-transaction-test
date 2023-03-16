@@ -3,12 +3,14 @@ package at.co.account.service.impl;
 import at.co.account.dto.AccountDto;
 import at.co.account.dto.AccountUpdateDto;
 import at.co.account.entity.AccountEntity;
+import at.co.account.entity.TransactionEntity;
 import at.co.account.enums.AccountType;
+import at.co.account.enums.CreditStatus;
+import at.co.account.enums.DebitStatus;
 import at.co.account.enums.TransactionType;
-import at.co.account.exception.Errors;
-import at.co.account.exception.NotAllowedException;
-import at.co.account.exception.NotFoundException;
+import at.co.account.exception.*;
 import at.co.account.repository.AccountRepository;
+import at.co.account.repository.TransactionRepository;
 import at.co.account.service.AccountService;
 import at.co.account.service.CreditService;
 import at.co.account.service.CustomerService;
@@ -25,6 +27,7 @@ import java.util.Random;
 @Slf4j
 public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
     private final CreditService creditService;
     private final DebitService debitService;
     private final CustomerService customerService;
@@ -88,13 +91,28 @@ public class AccountServiceImpl implements AccountService {
                 accountEntity.setAmount(accountUpdateDto.getAmount());
             }
         }
-
-        if (accountUpdateDto.getTransactionType().equals(TransactionType.CREDIT)) {
-            accountEntity.setBalance(accountEntity.getBalance() + accountUpdateDto.getAmount());
-            creditService.credit(customerEntity, accountEntity, oldBalance);
-        } else if (accountUpdateDto.getTransactionType().equals(TransactionType.DEBIT)) {
-            accountEntity.setBalance(accountEntity.getBalance() - accountUpdateDto.getAmount());
-            debitService.debit(customerEntity, accountEntity, oldBalance);
+        try {
+            if (accountUpdateDto.getTransactionType().equals(TransactionType.CREDIT)) {
+                accountEntity.setBalance(accountEntity.getBalance() + accountUpdateDto.getAmount());
+                creditService.credit(customerEntity, accountEntity, oldBalance);
+            } else if (accountUpdateDto.getTransactionType().equals(TransactionType.DEBIT)) {
+                accountEntity.setBalance(accountEntity.getBalance() - accountUpdateDto.getAmount());
+                debitService.debit(customerEntity, accountEntity, oldBalance);
+            }
+        } catch (Throwable exception) {
+            var transaction = TransactionEntity.builder().build();
+            if (exception instanceof CreditException) {
+                transaction = transaction.builder()
+                        .creditStatus(CreditStatus.FAIL)
+                        .exceptionMsg(exception.getMessage())
+                        .build();
+            } else if (exception instanceof DebitException) {
+                transaction = transaction.builder()
+                        .debitStatus(DebitStatus.FAIL)
+                        .exceptionMsg(exception.getMessage())
+                        .build();
+            }
+            transactionRepository.save(transaction);
         }
 
         return accountEntity;

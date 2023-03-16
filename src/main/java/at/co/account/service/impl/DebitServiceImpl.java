@@ -3,7 +3,9 @@ package at.co.account.service.impl;
 import at.co.account.entity.AccountEntity;
 import at.co.account.entity.CustomerEntity;
 import at.co.account.entity.TransactionEntity;
+import at.co.account.enums.DebitStatus;
 import at.co.account.enums.TransactionType;
+import at.co.account.exception.DebitException;
 import at.co.account.exception.Errors;
 import at.co.account.exception.NotFoundException;
 import at.co.account.repository.AccountRepository;
@@ -26,27 +28,31 @@ public class DebitServiceImpl implements DebitService {
     private final AccountRepository accountRepository;
 
     @Override
-    public TransactionEntity debit(CustomerEntity customerEntity, AccountEntity accountEntity,Double oldBalance) {
-        accountRepository.save(accountEntity);
+    public TransactionEntity debit(CustomerEntity customerEntity, AccountEntity accountEntity, Double oldBalance) {
+        try {
+            accountRepository.save(accountEntity);
 
-        var byAccountNr = accountRepository.findByAccNr(accountEntity.getAccNr());
-        if (!byAccountNr.isPresent())
-            throw new NotFoundException(Errors.NO_SUCH_ACCOUNT_FOUND);
+            var byAccountNr = accountRepository.findByAccNr(accountEntity.getAccNr());
+            if (!byAccountNr.isPresent())
+                throw new NotFoundException(Errors.NO_SUCH_ACCOUNT_FOUND);
 
-        customerEntity.setAccountId(accountEntity.getId());
-        customerEntity.setAccountEntity(accountEntity);
-        customerRepository.save(customerEntity);
+            customerEntity.setAccountId(accountEntity.getId());
+            customerEntity.setAccountEntity(accountEntity);
+            customerRepository.save(customerEntity);
 
-        var creditTransaction = TransactionEntity.builder()
-                .transactionType(TransactionType.DEBIT)
-                .isTransactionSucceeded(true)
-                .oldBalance(oldBalance)
-                .newBalance(accountEntity.getBalance())
-                .customerId(customerEntity.getId())
-                .customerEntity(customerEntity)
-                .build();
-        transactionRepository.saveAndFlush(creditTransaction);
+            var creditTransaction = TransactionEntity.builder()
+                    .transactionType(TransactionType.DEBIT)
+                    .debitStatus(DebitStatus.SUCCESS)
+                    .oldBalance(oldBalance)
+                    .newBalance(accountEntity.getBalance())
+                    .customerId(customerEntity.getId())
+                    .customerEntity(customerEntity)
+                    .build();
+            transactionRepository.saveAndFlush(creditTransaction);
 
-        return creditTransaction;
+            return creditTransaction;
+        } catch (Exception ex) {
+            throw new DebitException(ex.getMessage(), ex);
+        }
     }
 }

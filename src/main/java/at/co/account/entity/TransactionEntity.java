@@ -1,5 +1,7 @@
 package at.co.account.entity;
 
+import at.co.account.enums.CreditStatus;
+import at.co.account.enums.DebitStatus;
 import at.co.account.enums.TransactionType;
 import lombok.*;
 
@@ -22,11 +24,17 @@ public class TransactionEntity implements Serializable {
     private Double oldBalance;
     @Column(name = "NEW_BALANCE", nullable = false)
     private Double newBalance;
-    @Column(name = "IS_TRANSACTION_SUCCEEDED")
-    private boolean isTransactionSucceeded;
     @Column(name = "TRANSACTION_TYPE", nullable = false)
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
+    @Column(name = "EXCEPTION_MESSAGE")
+    private String exceptionMsg;
+    @Column(name = "CREDIT_STATUS")
+    @Enumerated(EnumType.STRING)
+    private CreditStatus creditStatus;
+    @Column(name = "DEBIT_STATUS")
+    @Enumerated(EnumType.STRING)
+    private DebitStatus debitStatus;
     @Column(name = "CUSTOMER_FK", insertable = false, updatable = false)
     private Long customerId;
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
