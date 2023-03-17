@@ -60,7 +60,16 @@ public class AccountServiceImpl implements AccountService {
                 accountEntity.setAmount(accountDto.getAmount());
             }
         }
-        creditService.credit(customerEntity, accountEntity, oldBalance);
+        try {
+            creditService.credit(customerEntity, accountEntity, oldBalance);
+        }catch (Throwable exception) {
+            var transaction = TransactionEntity.builder().build();
+                transaction = transaction.builder()
+                        .creditStatus(CreditStatus.FAIL)
+                        .exceptionMsg(exception.getMessage())
+                        .build();
+            transactionRepository.save(transaction);
+            }
 
         return accountEntity;
     }

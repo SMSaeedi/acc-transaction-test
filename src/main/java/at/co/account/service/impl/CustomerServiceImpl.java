@@ -7,7 +7,6 @@ import at.co.account.entity.AccountEntity;
 import at.co.account.entity.CustomerEntity;
 import at.co.account.exception.Errors;
 import at.co.account.exception.NotFoundException;
-import at.co.account.repository.AccountRepository;
 import at.co.account.repository.CustomerRepository;
 import at.co.account.service.CustomerService;
 import at.co.account.service.TransactionService;
@@ -25,7 +24,6 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final TransactionService transactionService;
     private final TransactionMapper transactionMapper;
-    private final AccountRepository accountRepository;
     private final ObjectMapper objectMapper;
 
     @Override

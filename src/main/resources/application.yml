@@ -1,3 +1,5 @@
+v1API:  /api
+
 server:
   port: 9856
   servlet:

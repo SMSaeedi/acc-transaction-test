@@ -19,9 +19,4 @@ public class TransactionServiceImpl implements TransactionService {
     public List<TransactionEntity> allCustomersTransactions(Long customerId) {
         return transactionRepository.findAllByCustomerId(customerId);
     }
-
-    @Override
-    public List<TransactionEntity> last_10_CustomersTransactions(Long customerId) {
-        return null;
-    }
 }

@@ -7,5 +7,4 @@ import java.util.List;
 @Validated
 public interface TransactionService {
     List<TransactionEntity> allCustomersTransactions(Long customerId);
-    List<TransactionEntity> last_10_CustomersTransactions(Long customerId);
 }

@@ -37,7 +37,7 @@ public class TransactionEntity implements Serializable {
     private DebitStatus debitStatus;
     @Column(name = "CUSTOMER_FK", insertable = false, updatable = false)
     private Long customerId;
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "CUSTOMER_FK", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
+    @JoinColumn(name = "CUSTOMER_FK")
     private CustomerEntity customerEntity;
 }
