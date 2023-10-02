@@ -4,6 +4,9 @@ A simple sample of a transaction service, includes depositing and crediting
 Test URL: http://localhost:9856/cap-gem/api.html
 -----------------------------------------------
 
+H2 access link: http://localhost:9856/h2
+-----------------------------------------------
+
 Docker build : $ docker build -t getting-started .
 -----------------------------------------------
 
