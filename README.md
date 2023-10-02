@@ -1,3 +1,11 @@
-Create account and work on it, credit and debit and get the transactions
+A simple sample of a transaction service, includes depositing and crediting
+-----------------------------------------------
 
-Access link: http://localhost:9856/cap-gem/api.html
+Test URL: http://localhost:9856/cap-gem/api.html
+-----------------------------------------------
+
+Docker build : $ docker build -t getting-started .
+-----------------------------------------------
+
+Docker run: $ docker run -dp 127.0.0.1:9854:9854 getting-started
+-----------------------------------------------
