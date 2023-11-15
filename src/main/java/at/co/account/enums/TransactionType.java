@@ -14,9 +14,7 @@ public enum TransactionType {
                 return "credit";
             case DEBIT:
                 return "debit";
-            case UNKNOWN:
-                return "unknown";
         }
-        return null;
+        return UNKNOWN.name();
     }
 }

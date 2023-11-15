@@ -2,17 +2,18 @@ package at.co.account.enums;
 
 public enum CreditStatus {
     SUCCESS,
-    FAIL;
+    FAIL,
+    UNKNOWN;
 
     public static String getTitle(CreditStatus val) {
         if (val == null)
             return null;
         switch (val) {
             case SUCCESS:
-                return "موفق";
+                return SUCCESS.name();
             case FAIL:
-                return "ناموفق";
+                return FAIL.name();
         }
-        return null;
+        return UNKNOWN.name();
     }
 }
