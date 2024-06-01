@@ -3,6 +3,7 @@ package at.co.account.service.impl;
 import at.co.account.dto.AccountDto;
 import at.co.account.dto.AccountUpdateDto;
 import at.co.account.entity.AccountEntity;
+import at.co.account.entity.CustomerEntity;
 import at.co.account.entity.TransactionEntity;
 import at.co.account.enums.AccountType;
 import at.co.account.enums.CreditStatus;
@@ -10,14 +11,15 @@ import at.co.account.enums.DebitStatus;
 import at.co.account.enums.TransactionType;
 import at.co.account.exception.*;
 import at.co.account.repository.AccountRepository;
+import at.co.account.repository.CustomerRepository;
 import at.co.account.repository.TransactionRepository;
 import at.co.account.service.AccountService;
-import at.co.account.service.CreditService;
 import at.co.account.service.CustomerService;
-import at.co.account.service.DebitService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 import java.util.Random;
@@ -31,7 +33,7 @@ public class AccountServiceImpl implements AccountService {
     private final CreditService creditService;
     private final DebitService debitService;
     private final CustomerService customerService;
-    private Random random = new Random();
+    private final Random random = new Random();
 
     @Override
     public AccountEntity createAccount(Long customerId, AccountDto accountDto) {
@@ -44,7 +46,7 @@ public class AccountServiceImpl implements AccountService {
             throw new NotAllowedException(Errors.NOT_ALLOWED);
 
         var findByType = hasAccount(accountDto.getAccountType());
-        if (!findByType.isPresent()) {
+        if (findByType.isEmpty()) {
             var accNumber = Long.valueOf(String.format("%08d", random.nextInt(100000000)));
             accountEntity = AccountEntity.builder()
                     .accNr(accNumber)
@@ -62,14 +64,12 @@ public class AccountServiceImpl implements AccountService {
         }
         try {
             creditService.credit(customerEntity, accountEntity, oldBalance);
-        }catch (Throwable exception) {
-            var transaction = TransactionEntity.builder().build();
-                transaction = transaction.builder()
-                        .creditStatus(CreditStatus.FAIL)
-                        .exceptionMsg(exception.getMessage())
-                        .build();
-            transactionRepository.save(transaction);
-            }
+        } catch (Throwable exception) {
+            transactionRepository.save(TransactionEntity.builder()
+                    .creditStatus(CreditStatus.FAIL)
+                    .exceptionMsg(exception.getMessage())
+                    .build());
+        }
 
         return accountEntity;
     }
@@ -85,7 +85,7 @@ public class AccountServiceImpl implements AccountService {
             throw new NotAllowedException(Errors.NOT_ALLOWED);
 
         var findByType = hasAccount(accountUpdateDto.getAccountType());
-        if (!findByType.isPresent()) {
+        if (findByType.isEmpty()) {
             var accNumber = Long.valueOf(String.format("%08d", random.nextInt(100000000)));
             accountEntity = AccountEntity.builder()
                     .accNr(accNumber)
@@ -111,12 +111,12 @@ public class AccountServiceImpl implements AccountService {
         } catch (Throwable exception) {
             var transaction = TransactionEntity.builder().build();
             if (exception instanceof CreditException) {
-                transaction = transaction.builder()
+                transaction = TransactionEntity.builder()
                         .creditStatus(CreditStatus.FAIL)
                         .exceptionMsg(exception.getMessage())
                         .build();
             } else if (exception instanceof DebitException) {
-                transaction = transaction.builder()
+                transaction = TransactionEntity.builder()
                         .debitStatus(DebitStatus.FAIL)
                         .exceptionMsg(exception.getMessage())
                         .build();
@@ -147,5 +147,81 @@ public class AccountServiceImpl implements AccountService {
         return accountEntity.map(entity -> allCustomerAccNrs.stream()
                 .filter(account -> account.getAccountType().equals(entity.getAccountType()))
                 .map(AccountEntity::getBalance).findFirst().orElse(0D)).orElse(0D);
+    }
+
+    @Service
+    @Transactional(propagation = Propagation.REQUIRED)
+    @RequiredArgsConstructor
+    @Slf4j
+    class CreditService {
+        private final TransactionRepository transactionRepository;
+        private final CustomerRepository customerRepository;
+        private final AccountRepository accountRepository;
+
+        public TransactionEntity credit(CustomerEntity customerEntity, AccountEntity accountEntity, Double oldBalance) {
+            try {
+                accountRepository.save(accountEntity);
+
+                var byAccountNr = accountRepository.findByAccNr(accountEntity.getAccNr());
+                if (byAccountNr.isEmpty())
+                    throw new NotFoundException(Errors.NO_SUCH_ACCOUNT_FOUND);
+
+                customerEntity.setAccountId(accountEntity.getId());
+                customerEntity.setAccountEntity(accountEntity);
+                customerRepository.save(customerEntity);
+
+                var creditTransaction = TransactionEntity.builder()
+                        .transactionType(TransactionType.CREDIT)
+                        .creditStatus(CreditStatus.SUCCESS)
+                        .oldBalance(oldBalance)
+                        .newBalance(accountEntity.getBalance())
+                        .customerId(customerEntity.getId())
+                        .customerEntity(customerEntity)
+                        .build();
+                transactionRepository.saveAndFlush(creditTransaction);
+
+                return creditTransaction;
+            } catch (Throwable ex) {
+                throw new CreditException(ex.getMessage(), ex);
+            }
+        }
+    }
+
+    @Service
+    @Transactional(propagation = Propagation.REQUIRED)
+    @RequiredArgsConstructor
+    @Slf4j
+    class DebitService {
+        private final TransactionRepository transactionRepository;
+        private final CustomerRepository customerRepository;
+        private final AccountRepository accountRepository;
+
+        public TransactionEntity debit(CustomerEntity customerEntity, AccountEntity accountEntity, Double oldBalance) {
+            try {
+                accountRepository.save(accountEntity);
+
+                var byAccountNr = accountRepository.findByAccNr(accountEntity.getAccNr());
+                if (byAccountNr.isEmpty())
+                    throw new NotFoundException(Errors.NO_SUCH_ACCOUNT_FOUND);
+
+                customerEntity.setAccountId(accountEntity.getId());
+                customerEntity.setAccountEntity(accountEntity);
+                customerRepository.save(customerEntity);
+
+                var creditTransaction = TransactionEntity.builder()
+                        .transactionType(TransactionType.DEBIT)
+                        .debitStatus(DebitStatus.SUCCESS)
+                        .oldBalance(oldBalance)
+                        .newBalance(accountEntity.getBalance())
+                        .customerId(customerEntity.getId())
+                        .customerEntity(customerEntity)
+                        .build();
+                transactionRepository.saveAndFlush(creditTransaction);
+
+                return creditTransaction;
+            } catch (Exception ex) {
+                throw new DebitException(ex.getMessage(), ex);
+            }
+        }
     }
 }

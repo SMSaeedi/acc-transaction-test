@@ -22,9 +22,7 @@ public class CustomerController {
     @Operation(summary = "Get Customer's transactions")
     @ResponseStatus(HttpStatus.OK)
     public GetCustomerTransaction getCustomerTransaction(@PathVariable Long customerId) {
-        var getTransactions = customerService.getCustomerTransaction(customerId);
-
-        return getTransactions;
+        return customerService.getCustomerTransaction(customerId);
     }
 
     @GetMapping("/find-one/{customerId}")
