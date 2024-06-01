@@ -1,4 +1,4 @@
-# CapGemeni Service
+# Account Transaction Service
 
 This is the README file for the account transaction Service application, explaining the environment variables used in the
 configuration.
@@ -12,7 +12,7 @@ configuration.
 
 ### H2 Configuration
 - **Variable Name**: `cap`, `capcap6568`, `http://localhost:9856/h2`
-- **Description**: Configures the PostgreSQL datasource properties.
+- **Description**: Configures the H2 datasource properties.
 
 ### JPA Configuration
 - **Variable Name**: `FORMAT_SQL`
