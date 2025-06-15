@@ -77,7 +77,9 @@
 
     <build>
         <finalName>cap-gem</finalName>
+
         <plugins>
+            <!-- Run tests normally -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -87,15 +89,17 @@
                 </configuration>
             </plugin>
 
+            <!-- Spring Boot plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
+            <!-- Java Compiler Plugin updated for Java 21 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
+                <version>3.11.0</version> <!-- ✅ required for Java 21 -->
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -112,9 +116,7 @@
                         </path>
                     </annotationProcessorPaths>
                     <compilerArgs>
-                        <compilerArg>
-                            -Amapstruct.defaultComponentModel=spring
-                        </compilerArg>
+                        <compilerArg>-Amapstruct.defaultComponentModel=spring</compilerArg>
                     </compilerArgs>
                 </configuration>
             </plugin>
