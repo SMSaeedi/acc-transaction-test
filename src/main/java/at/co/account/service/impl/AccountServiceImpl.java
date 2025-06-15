@@ -153,7 +153,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional(propagation = Propagation.REQUIRED)
     @RequiredArgsConstructor
     @Slf4j
-    class CreditService {
+    static class CreditService {
         private final TransactionRepository transactionRepository;
         private final CustomerRepository customerRepository;
         private final AccountRepository accountRepository;
@@ -191,7 +191,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional(propagation = Propagation.REQUIRED)
     @RequiredArgsConstructor
     @Slf4j
-    class DebitService {
+    static class DebitService {
         private final TransactionRepository transactionRepository;
         private final CustomerRepository customerRepository;
         private final AccountRepository accountRepository;
