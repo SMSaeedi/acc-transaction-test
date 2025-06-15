@@ -3,9 +3,9 @@ package at.co.account.entity;
 import at.co.account.enums.CreditStatus;
 import at.co.account.enums.DebitStatus;
 import at.co.account.enums.TransactionType;
+import jakarta.persistence.*;
 import lombok.*;
 
-import javax.persistence.*;
 import java.io.Serializable;
 
 @Builder

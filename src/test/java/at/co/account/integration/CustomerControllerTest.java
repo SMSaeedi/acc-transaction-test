@@ -16,6 +16,7 @@ public class CustomerControllerTest extends BaseIntegrationTest {
     @Order(1)
     void should_get_customer_transactions() {
         CustomerEntity customerById = customerService.findCustomerById(1L);
+        System.out.println("Customer: " + customerById.getId());
         webTestClient.get().uri(CONTEXT_PATH + "/customers/" + customerById.getId())
                 .exchange()
                 .expectStatus().isOk()
